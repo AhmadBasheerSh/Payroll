@@ -210,10 +210,12 @@ export default function EmployeeDashboard() {
     setReviewFormData({ payrollSheetId: '', reason: '' })
   }
 
-  const availablePayrollSheets = payrollSheets.filter(
-    s => (s.status === 'approved' || s.status === 'closed') && 
-    s.entries.some(e => e.employeeId === employee?.employeeId)
-  )
+  const availablePayrollSheets = payrollSheets
+    .filter(
+      s => (s.status === 'approved' || s.status === 'closed') && 
+      s.entries.some(e => e.employeeId === employee?.employeeId)
+    )
+    .sort((a, b) => b.year - a.year || b.month - a.month)
 
   const exportPDF = () => {
     if (!employee || !lastMonthSalary) return
@@ -793,11 +795,14 @@ export default function EmployeeDashboard() {
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
                 <option value="">اختر الشهر...</option>
-                {availablePayrollSheets.map((sheet) => (
-                  <option key={sheet.id} value={sheet.id}>
-                    {monthNames[sheet.month - 1]} {sheet.year}
-                  </option>
-                ))}
+                {availablePayrollSheets.map((sheet) => {
+                  const entry = sheet.entries.find(e => e.employeeId === employee?.employeeId)
+                  return (
+                    <option key={sheet.id} value={sheet.id}>
+                      {monthNames[sheet.month - 1]} {sheet.year} - {entry?.grossSalary.toLocaleString()} ش
+                    </option>
+                  )
+                })}
               </select>
             </div>
             

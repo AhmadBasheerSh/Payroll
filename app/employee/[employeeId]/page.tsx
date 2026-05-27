@@ -299,16 +299,30 @@ export default function EmployeeDashboardPage({ params }: { params: Promise<{ em
  const handleEditProfile = async () => {
     if (!employee) return
 
+    const newPassword = editFormData.password.trim()
+    
+    // التحقق من تطابق كلمة المرور إذا تم إدخالها
+    if (newPassword && newPassword !== editFormData.confirmPassword.trim()) {
+      toast.error('كلمة المرور وتأكيدها غير متطابقين')
+      return
+    }
+
+    const updates: Record<string, string> = {
+      phone_number: editFormData.phoneNumber,
+      wallet_phone_number: editFormData.walletPhoneNumber,
+      wallet_owner_name: editFormData.walletOwnerName,
+      wallet_owner_id: editFormData.walletOwnerId
+    }
+
+    // إضافة كلمة المرور الجديدة إذا تم إدخالها
+    if (newPassword) {
+      updates.password = newPassword
+    }
+
     const { error } = await supabase
       .from('employees')
-      .update({
-        phone_number: editFormData.phoneNumber,
-        wallet_phone_number: editFormData.walletPhoneNumber,
-        wallet_owner_name: editFormData.walletOwnerName,
-        wallet_owner_id: editFormData.walletOwnerId
-      })
+      .update(updates)
       .eq('id', employee.id)
-  
 
     if (error) {
       toast.error('فشل تحديث البيانات')
@@ -317,6 +331,11 @@ export default function EmployeeDashboardPage({ params }: { params: Promise<{ em
 
     toast.success('تم تحديث البيانات بنجاح')
     setEditDialogOpen(false)
+    setEditFormData({
+      ...editFormData,
+      password: '',
+      confirmPassword: ''
+    })
     loadDashboard()
   }
 
