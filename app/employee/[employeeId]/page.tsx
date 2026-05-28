@@ -589,9 +589,13 @@ export default function EmployeeDashboardPage({ params }: { params: Promise<{ em
                   <div className="rounded-xl bg-muted/50 p-3">
                     <div className="flex items-center gap-2 mb-1">
                       <DollarSign className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">سعر الساعة</span>
+                      <span className="text-xs text-muted-foreground">
+                        {employee.workType === 'hourly' ? 'سعر الساعة' : 'سعر اليوم'}
+                      </span>
                     </div>
-                    <p className="font-semibold text-ellipsis">{employee.hourlyRate} شيكل</p>
+                    <p className="font-semibold text-ellipsis">
+                      {employee.workType === 'hourly' ? employee.hourlyRate : employee.dailyRate} شيكل
+                    </p>
                   </div>
 
                   <div className="rounded-xl bg-muted/50 p-3">
