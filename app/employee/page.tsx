@@ -87,6 +87,7 @@ interface EmployeeSalaryRecord {
   cashReceived: number
   transferReceived: number
   remaining: number
+  notes: string
 }
 
 export default function EmployeeDashboard() {
@@ -145,7 +146,8 @@ export default function EmployeeDashboard() {
               netSalary: entry.netSalary,
               cashReceived: entry.cashReceived,
               transferReceived: entry.transferReceived,
-              remaining: entry.remaining
+              remaining: entry.remaining,
+              notes: entry.notes ?? ''
             })
           }
         })
@@ -415,9 +417,13 @@ export default function EmployeeDashboard() {
                   <div className="rounded-xl bg-muted/50 p-3">
                     <div className="flex items-center gap-2 mb-1">
                       <DollarSign className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">سعر الساعة</span>
+                      <span className="text-xs text-muted-foreground">
+                        {employee.workType === 'hourly' ? 'سعر الساعة' : 'سعر اليوم'}
+                      </span>
                     </div>
-                    <p className="font-semibold">{employee.hourlyRate} شيكل</p>
+                    <p className="font-semibold">
+                      {employee.workType === 'hourly' ? employee.hourlyRate : employee.dailyRate} شيكل
+                    </p>
                   </div>
                   
                   <div className="rounded-xl bg-muted/50 p-3">
@@ -581,6 +587,7 @@ export default function EmployeeDashboard() {
                         <TableHead className="text-right font-semibold">نقدا</TableHead>
                         <TableHead className="text-right font-semibold">تحويل</TableHead>
                         <TableHead className="text-right font-semibold">المتبقي</TableHead>
+                        <TableHead className="text-right font-semibold">ملاحظة</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -611,6 +618,9 @@ export default function EmployeeDashboard() {
                           <TableCell>{record.transferReceived.toLocaleString()} ش</TableCell>
                           <TableCell className={record.remaining > 0 ? 'text-amber-600 font-semibold' : 'text-emerald-600'}>
                             {record.remaining.toLocaleString()} ش
+                          </TableCell>
+                          <TableCell className="max-w-[240px] whitespace-normal break-words text-muted-foreground">
+                            {record.notes?.trim() || '—'}
                           </TableCell>
                         </motion.tr>
                       ))}
@@ -787,14 +797,17 @@ export default function EmployeeDashboard() {
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label htmlFor="payrollSheet">اختر كشف الراتب</Label>
+              <Label htmlFor="payrollSheet">اختر شهر الراتب للمراجعة</Label>
               <select
                 id="payrollSheet"
                 value={reviewFormData.payrollSheetId}
                 onChange={(e) => setReviewFormData({ ...reviewFormData, payrollSheetId: e.target.value })}
+                disabled={availablePayrollSheets.length === 0}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
-                <option value="">اختر الشهر...</option>
+                <option value="">
+                  {availablePayrollSheets.length === 0 ? 'لا يوجد أشهر رواتب متاحة' : 'اختر الشهر...'}
+                </option>
                 {availablePayrollSheets.map((sheet) => {
                   const entry = sheet.entries.find(e => e.employeeId === employee?.employeeId)
                   return (
@@ -804,6 +817,9 @@ export default function EmployeeDashboard() {
                   )
                 })}
               </select>
+              <p className="text-xs text-muted-foreground">
+                يتم عرض الأشهر التي لديك فيها راتب فقط.
+              </p>
             </div>
             
             <div className="space-y-2">
@@ -821,7 +837,7 @@ export default function EmployeeDashboard() {
             <Button variant="outline" onClick={() => setReviewDialogOpen(false)}>
               الغاء
             </Button>
-            <Button onClick={handleSubmitReviewRequest}>
+            <Button onClick={handleSubmitReviewRequest} disabled={availablePayrollSheets.length === 0}>
               <Send className="h-4 w-4 ml-2" />
               ارسال الطلب
             </Button>

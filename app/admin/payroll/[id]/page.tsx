@@ -680,7 +680,6 @@ export default function PayrollSheetPage({ params }: { params: Promise<{ id: str
                   type="number"
                   value={formData.withdrawals}
                   onChange={(e) => setFormData(prev => ({ ...prev, withdrawals: Number(e.target.value) }))}
-                  min={0}
                 />
               </div>
               
@@ -722,7 +721,9 @@ export default function PayrollSheetPage({ params }: { params: Promise<{ id: str
                   <span>إجمالي الراتب:</span>
                   <span className="font-medium">{preview.grossSalary.toLocaleString()} ₪</span>
                   <span>السحوبات:</span>
-                  <span className="font-medium text-destructive">-{formData.withdrawals.toLocaleString()} ₪</span>
+                  <span className={`font-medium ${formData.withdrawals >= 0 ? 'text-destructive' : 'text-emerald-600'}`}>
+                    {formData.withdrawals.toLocaleString()} ₪
+                  </span>
                   <span>صافي الراتب:</span>
                   <span className="font-bold">{preview.netSalary.toLocaleString()} ₪</span>
                   <span>المستلم:</span>

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { use, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
@@ -68,6 +68,7 @@ interface EmployeeSalaryRecord {
   cashReceived: number
   transferReceived: number
   remaining: number
+  notes: string
   payrollSheetId: string
 }
 
@@ -198,7 +199,7 @@ export default function EmployeeDashboardPage({ params }: { params: Promise<{ em
 
     const payrollEntriesResponse = await supabase
       .from('payroll_entries')
-      .select(`id, hours_or_days, rate, gross_salary, withdrawals, net_salary, cash_received, transfer_received, remaining, payroll_sheet:payroll_sheets(id, month, year, status)`)
+      .select(`id, hours_or_days, rate, gross_salary, withdrawals, net_salary, cash_received, transfer_received, remaining, notes, payroll_sheet:payroll_sheets(id, month, year, status)`)
       .eq('employee_id', mappedEmployee.id)
 
     if (payrollEntriesResponse.error) {
@@ -222,6 +223,7 @@ export default function EmployeeDashboardPage({ params }: { params: Promise<{ em
         cashReceived: entry.cash_received,
         transferReceived: entry.transfer_received,
         remaining: entry.remaining,
+        notes: entry.notes ?? '',
         payrollSheetId: entry.payroll_sheet.id
       }))
       .sort((a, b) => b.year - a.year || b.month - a.month)
@@ -741,6 +743,7 @@ export default function EmployeeDashboardPage({ params }: { params: Promise<{ em
                         <TableHead className="text-right font-semibold">نقدا</TableHead>
                         <TableHead className="text-right font-semibold">تحويل</TableHead>
                         <TableHead className="text-right font-semibold">المتبقي</TableHead>
+                        <TableHead className="text-right font-semibold">ملاحظة</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -772,11 +775,8 @@ export default function EmployeeDashboardPage({ params }: { params: Promise<{ em
                           <TableCell className={record.remaining > 0 ? 'text-amber-600 font-semibold' : 'text-emerald-600'}>
                             {record.remaining.toLocaleString()} ش
                           </TableCell>
-                          <TableCell>
-                            <Button variant="ghost" size="sm" onClick={() => exportPDF(record)}>
-                              <FileText className="h-4 w-4 ml-2" />
-                              تحميل
-                            </Button>
+                          <TableCell className="max-w-[240px] whitespace-normal break-words text-muted-foreground">
+                            {record.notes?.trim() || '—'}
                           </TableCell>
                         </motion.tr>
                       ))}
