@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
 import { useAppStore } from '@/lib/store'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
@@ -90,25 +89,16 @@ export default function LoginPage() {
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-accent/10 rounded-full blur-3xl" />
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="w-full max-w-md relative z-10"
-      >
+      {/* ✅ Replaced framer-motion.div with CSS animation */}
+      <div className="w-full max-w-md relative z-10 animate-fade-slide-up">
         <Card className="border-0 shadow-2xl bg-card/80 backdrop-blur-sm">
           <CardHeader className="text-center pb-2">
-            {/* Logo */}
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-              className="mx-auto mb-4"
-            >
+            {/* Logo - CSS animation instead of motion.div */}
+            <div className="mx-auto mb-4 animate-scale-in" style={{ animationDelay: '0.2s' }}>
               <div className="w-20 h-20 rounded-2xl bg-primary flex items-center justify-center shadow-lg">
                 <span className="text-3xl font-bold text-primary-foreground">O2</span>
               </div>
-            </motion.div>
+            </div>
             
             <CardTitle className="text-2xl font-bold">O2 Payroll System</CardTitle>
             <CardDescription>نظام إدارة رواتب الموظفين</CardDescription>
@@ -147,7 +137,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-smooth"
                   >
                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
@@ -160,10 +150,11 @@ export default function LoginPage() {
                 disabled={isLoading}
               >
                 {isLoading ? (
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                  <div
                     className="w-5 h-5 border-2 border-primary-foreground border-t-transparent rounded-full"
+                    style={{
+                      animation: 'spin 1s linear infinite',
+                    }}
                   />
                 ) : (
                   'تسجيل الدخول'
@@ -185,7 +176,7 @@ export default function LoginPage() {
         <p className="text-center text-sm text-muted-foreground mt-4">
           © 2024 O2 Restaurant. جميع الحقوق محفوظة
         </p>
-      </motion.div>
+      </div>
     </div>
   )
 }

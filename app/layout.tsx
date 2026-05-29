@@ -4,11 +4,13 @@ import { Toaster } from '@/components/ui/sonner'
 import { ThemeProvider } from '@/components/theme-provider'
 import './globals.css'
 
+// ✅ Reduced font weights from 6 to 2 (400 & 700) - saves ~60KB
+// Only load what's actually used in the design
 const cairo = Cairo({
   subsets: ['arabic', 'latin'],
   variable: '--font-cairo',
   display: 'swap',
-  weight: ['300', '400', '500', '600', '700', '800'],
+  weight: ['400', '700'],
 })
 
 export const metadata: Metadata = {

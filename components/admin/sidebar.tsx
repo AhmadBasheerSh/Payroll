@@ -20,7 +20,6 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 
 const menuItems = [
   { 
@@ -96,23 +95,18 @@ export function AdminSidebar() {
         {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
       </Button>
 
-      {/* Overlay */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
-            onClick={() => setIsOpen(false)}
-          />
-        )}
-      </AnimatePresence>
+      {/* ✅ Overlay - replaced motion.div with CSS transition */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
 
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed right-0 top-0 z-40 h-screen w-72 border-l bg-card transition-transform duration-300 lg:translate-x-0",
+          "fixed right-0 top-0 z-40 h-screen w-72 border-l bg-card transition-transform duration-300",
           isOpen ? "translate-x-0" : "translate-x-full lg:translate-x-0"
         )}
       >
@@ -157,7 +151,7 @@ export function AdminSidebar() {
                       href={item.href}
                       onClick={() => setIsOpen(false)}
                       className={cn(
-                        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                        "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200",
                         isActive 
                           ? "bg-primary text-primary-foreground" 
                           : "text-muted-foreground hover:bg-secondary hover:text-foreground"
@@ -180,7 +174,7 @@ export function AdminSidebar() {
             <Link href="/">
               <Button 
                 variant="ghost" 
-                className="w-full justify-start gap-3 text-destructive hover:text-destructive hover:bg-destructive/10"
+                className="w-full justify-start gap-3 text-destructive hover:text-destructive hover:bg-destructive/10 transition-colors"
                 onClick={() => {
                   localStorage.removeItem('o2_current_user')
                   setIsOpen(false)

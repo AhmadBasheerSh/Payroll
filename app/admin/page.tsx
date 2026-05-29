@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { AdminHeader } from '@/components/admin/header'
 import { StatsCard } from '@/components/admin/stats-card'
 import { Users, Wallet, TrendingDown, CreditCard, Banknote, Clock } from 'lucide-react'
-import { motion } from 'framer-motion'
 import { listEmployees } from '@/lib/api/employees'
 import { listDepartments } from '@/lib/api/departments'
 import {
@@ -115,11 +114,10 @@ export default function AdminDashboard() {
         {/* Charts */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Department Salaries Chart */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="rounded-2xl border bg-card p-6"
+          {/* ✅ Replaced motion.div with CSS animation */}
+          <div
+            className="rounded-2xl border bg-card p-6 animate-fade-slide-up"
+            style={{ animationDelay: '0.3s' }}
           >
             <h3 className="text-lg font-semibold mb-4">الرواتب حسب القسم</h3>
             <div className="h-80">
@@ -140,14 +138,12 @@ export default function AdminDashboard() {
                 </BarChart>
               </ResponsiveContainer>
             </div>
-          </motion.div>
+          </div>
 
           {/* Payment Distribution */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="rounded-2xl border bg-card p-6"
+          <div
+            className="rounded-2xl border bg-card p-6 animate-fade-slide-up"
+            style={{ animationDelay: '0.4s' }}
           >
             <h3 className="text-lg font-semibold mb-4">توزيع طرق الدفع</h3>
             <div className="h-80">
@@ -178,15 +174,13 @@ export default function AdminDashboard() {
                 </PieChart>
               </ResponsiveContainer>
             </div>
-          </motion.div>
+          </div>
         </div>
 
         {/* Department Stats Table */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="rounded-2xl border bg-card p-6"
+        <div
+          className="rounded-2xl border bg-card p-6 animate-fade-slide-up"
+          style={{ animationDelay: '0.5s' }}
         >
           <h3 className="text-lg font-semibold mb-4">إحصائيات الأقسام</h3>
           <div className="overflow-x-auto">
@@ -228,14 +222,12 @@ export default function AdminDashboard() {
               </tbody>
             </table>
           </div>
-        </motion.div>
+        </div>
 
         {/* Quick Actions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-4"
+        <div
+          className="grid grid-cols-1 md:grid-cols-3 gap-4 animate-fade-slide-up"
+          style={{ animationDelay: '0.6s' }}
         >
           <div className="rounded-2xl border bg-gradient-to-br from-primary/10 to-primary/5 p-6">
             <Clock className="h-8 w-8 text-primary mb-3" />
@@ -260,7 +252,7 @@ export default function AdminDashboard() {
               {bankTransfers} موظفين عبر التحويل البنكي
             </p>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   )

@@ -1,6 +1,5 @@
 'use client'
 
-import { motion } from 'framer-motion'
 import { LucideIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -24,15 +23,21 @@ export function StatsCard({
   className,
   delay = 0 
 }: StatsCardProps) {
+  // ✅ Replaced motion.div with CSS animations
+  // Calculate animation delay in milliseconds for inline style
+  const delayMs = delay * 1000
+  
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay }}
+    <div
       className={cn(
-        "relative overflow-hidden rounded-2xl border bg-card p-6 shadow-sm",
+        "relative overflow-hidden rounded-2xl border bg-card p-6 shadow-sm animate-fade-slide-up",
         className
       )}
+      style={{ 
+        animationDelay: `${delayMs}ms`,
+        // Ensure animation is visible immediately
+        opacity: 1
+      }}
     >
       <div className="flex items-start justify-between">
         <div className="space-y-2">
@@ -54,6 +59,6 @@ export function StatsCard({
       
       {/* Decorative gradient */}
       <div className="absolute -bottom-4 -left-4 h-24 w-24 rounded-full bg-primary/5 blur-2xl" />
-    </motion.div>
+    </div>
   )
 }
