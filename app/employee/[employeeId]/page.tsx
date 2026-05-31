@@ -1,6 +1,6 @@
 ﻿'use client'
 
-import { use, useEffect, useState } from 'react'
+import { use, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { useTheme } from '@/components/theme-provider'
@@ -91,6 +91,13 @@ export default function EmployeeDashboardPage({ params }: { params: Promise<{ em
   const [salaryRecords, setSalaryRecords] = useState<EmployeeSalaryRecord[]>([])
   const [myReviewRequests, setMyReviewRequests] = useState<ReviewRequest[]>([])
   const [availablePayrollSheets, setAvailablePayrollSheets] = useState<PayrollSheetOption[]>([])
+
+  const filteredPayrollSheets = useMemo(
+    () => availablePayrollSheets.filter(sheet =>
+      !myReviewRequests.some(request => request.payrollSheetId === sheet.id)
+    ),
+    [availablePayrollSheets, myReviewRequests]
+  )
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -230,7 +237,6 @@ export default function EmployeeDashboardPage({ params }: { params: Promise<{ em
 
     setSalaryRecords(records)
     setAvailablePayrollSheets(records
-      .filter(record => record.sheetStatus === 'approved' || record.sheetStatus === 'closed')
       .reduce<PayrollSheetOption[]>((acc, record) => {
         if (!acc.some(sheet => sheet.id === record.payrollSheetId)) {
           acc.push({ id: record.payrollSheetId, month: record.month, year: record.year })
@@ -394,7 +400,7 @@ export default function EmployeeDashboardPage({ params }: { params: Promise<{ em
     }
 
     const hasExistingRequest = myReviewRequests.some(request =>
-      request.payrollSheetId === selectedSheet.id && request.status !== 'rejected'
+      request.payrollSheetId === selectedSheet.id
     )
 
     if (hasExistingRequest) {
@@ -876,7 +882,7 @@ export default function EmployeeDashboardPage({ params }: { params: Promise<{ em
 
       <footer className="border-t py-6 mt-8">
         <div className="container mx-auto px-4 text-center text-sm text-muted-foreground">
-          2024 O2 Restaurant. جميع الحقوق محفوظة
+          2026 O2 Restaurant. جميع الحقوق محفوظة
         </div>
       </footer>
 
@@ -983,8 +989,8 @@ export default function EmployeeDashboardPage({ params }: { params: Promise<{ em
                 onChange={(e) => setReviewFormData({ ...reviewFormData, payrollSheetId: e.target.value })}
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               >
-                <option value="">اختر الشهر...</option>
-                {availablePayrollSheets.map((sheet) => (
+                <option value="">{filteredPayrollSheets.length === 0 ? 'لا يوجد أشهر رواتب متاحة' : 'اختر الشهر...'}</option>
+                {filteredPayrollSheets.map((sheet) => (
                   <option key={sheet.id} value={sheet.id}>
                     {monthNames[sheet.month - 1]} {sheet.year}
                   </option>
@@ -1007,7 +1013,7 @@ export default function EmployeeDashboardPage({ params }: { params: Promise<{ em
             <Button variant="outline" onClick={() => setReviewDialogOpen(false)}>
               الغاء
             </Button>
-            <Button onClick={handleSubmitReviewRequest}>
+            <Button onClick={handleSubmitReviewRequest} disabled={filteredPayrollSheets.length === 0}>
               <Send className="h-4 w-4 ml-2" />
               ارسال الطلب
             </Button>

@@ -1,18 +1,31 @@
- 'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { AdminHeader } from '@/components/admin/header'
-import { listDepartments, addDepartment as apiAddDepartment, updateDepartment as apiUpdateDepartment, deleteDepartment as apiDeleteDepartment } from '@/lib/api/departments'
-import { listEmployees } from '@/lib/api/employees'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { useEffect, useState } from "react";
+import { AdminHeader } from "@/components/admin/header";
+import {
+  listDepartments,
+  addDepartment as apiAddDepartment,
+  updateDepartment as apiUpdateDepartment,
+  deleteDepartment as apiDeleteDepartment,
+} from "@/lib/api/departments";
+import { listEmployees } from "@/lib/api/employees";
+import { listPayrollEntriesForMonth } from "@/lib/api/payroll";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog'
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,112 +35,158 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import { Plus, Pencil, Trash2, Users, Building2 } from 'lucide-react'
-import { toast } from 'sonner'
-import { motion } from 'framer-motion'
-import type { Department } from '@/lib/types'
+} from "@/components/ui/alert-dialog";
+import { Plus, Pencil, Trash2, Users, Building2 } from "lucide-react";
+import { toast } from "sonner";
+import { motion } from "framer-motion";
+import type { Department } from "@/lib/types";
 
 export default function DepartmentsPage() {
-  const [departments, setDepartments] = useState<any[]>([])
-  const [employees, setEmployees] = useState<any[]>([])
-  const [newDeptName, setNewDeptName] = useState('')
-  const [editingDept, setEditingDept] = useState<Department | null>(null)
-  const [editName, setEditName] = useState('')
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [deptToDelete, setDeptToDelete] = useState<Department | null>(null)
-  const [addDialogOpen, setAddDialogOpen] = useState(false)
-  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [departments, setDepartments] = useState<any[]>([]);
+  const [employees, setEmployees] = useState<any[]>([]);
+  const [payrollEntries, setPayrollEntries] = useState<any[]>([]);
+  const [selectedMonth, setSelectedMonth] = useState(
+    (new Date().getMonth() + 1).toString(),
+  );
+  const [selectedYear, setSelectedYear] = useState(
+    new Date().getFullYear().toString(),
+  );
+  const [newDeptName, setNewDeptName] = useState("");
+  const [editingDept, setEditingDept] = useState<Department | null>(null);
+  const [editName, setEditName] = useState("");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deptToDelete, setDeptToDelete] = useState<Department | null>(null);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   const handleAdd = async () => {
     if (!newDeptName.trim()) {
-      toast.error('الرجاء إدخال اسم القسم')
-      return
+      toast.error("الرجاء إدخال اسم القسم");
+      return;
     }
-    const res = await apiAddDepartment(newDeptName)
+    const res = await apiAddDepartment(newDeptName);
     if (res.error) {
-      toast.error('فشل إضافة القسم')
-      return
+      toast.error("فشل إضافة القسم");
+      return;
     }
-    setNewDeptName('')
-    setAddDialogOpen(false)
-    toast.success('تم إضافة القسم بنجاح')
-    location.reload()
-  }
+    setNewDeptName("");
+    setAddDialogOpen(false);
+    toast.success("تم إضافة القسم بنجاح");
+    location.reload();
+  };
 
   const handleEdit = (dept: Department) => {
-    setEditingDept(dept)
-    setEditName(dept.name)
-    setEditDialogOpen(true)
-  }
+    setEditingDept(dept);
+    setEditName(dept.name);
+    setEditDialogOpen(true);
+  };
 
   const saveEdit = async () => {
     if (editingDept && editName.trim()) {
-      const res = await apiUpdateDepartment(editingDept.id, editName)
+      const res = await apiUpdateDepartment(editingDept.id, editName);
       if (res.error) {
-        toast.error('فشل تحديث القسم')
-        return
+        toast.error("فشل تحديث القسم");
+        return;
       }
-      setEditDialogOpen(false)
-      setEditingDept(null)
-      toast.success('تم تحديث القسم بنجاح')
-      location.reload()
+      setEditDialogOpen(false);
+      setEditingDept(null);
+      toast.success("تم تحديث القسم بنجاح");
+      location.reload();
     }
-  }
+  };
 
   const handleDelete = (dept: Department) => {
-    const deptEmployees = employees.filter(e => String(e.department_id || e.departmentId) === String(dept.id))
+    const deptEmployees = employees.filter(
+      (e) => String(e.department_id || e.departmentId) === String(dept.id),
+    );
     if (deptEmployees.length > 0) {
-      toast.error('لا يمكن حذف قسم يحتوي على موظفين')
-      return
+      toast.error("لا يمكن حذف قسم يحتوي على موظفين");
+      return;
     }
-    setDeptToDelete(dept)
-    setDeleteDialogOpen(true)
-  }
+    setDeptToDelete(dept);
+    setDeleteDialogOpen(true);
+  };
 
   const confirmDelete = async () => {
     if (deptToDelete) {
-      const res = await apiDeleteDepartment(deptToDelete.id)
+      const res = await apiDeleteDepartment(deptToDelete.id);
       if (res.error) {
-        toast.error('فشل حذف القسم')
-        return
+        toast.error("فشل حذف القسم");
+        return;
       }
-      toast.success('تم حذف القسم بنجاح')
-      setDeleteDialogOpen(false)
-      setDeptToDelete(null)
-      location.reload()
+      toast.success("تم حذف القسم بنجاح");
+      setDeleteDialogOpen(false);
+      setDeptToDelete(null);
+      location.reload();
     }
-  }
+  };
 
   useEffect(() => {
     async function load() {
-      const deps = await listDepartments()
-      if (!deps.error && deps.data) setDepartments(deps.data)
-      const emps = await listEmployees()
-      if (!emps.error && emps.data) setEmployees(emps.data)
+      const deps = await listDepartments();
+      if (!deps.error && deps.data) setDepartments(deps.data);
+      const emps = await listEmployees();
+      if (!emps.error && emps.data) setEmployees(emps.data);
     }
-    load()
-  }, [])
+    load();
+  }, []);
+
+  useEffect(() => {
+    async function loadEntries() {
+      const month = Number(selectedMonth);
+      const year = Number(selectedYear);
+      const res = await listPayrollEntriesForMonth(month, year);
+      if (!res.error && res.data) setPayrollEntries(res.data);
+      else setPayrollEntries([]);
+    }
+    loadEntries();
+  }, [selectedMonth, selectedYear]);
+
+  const monthNames = [
+    "يناير",
+    "فبراير",
+    "مارس",
+    "أبريل",
+    "مايو",
+    "يونيو",
+    "يوليو",
+    "أغسطس",
+    "سبتمبر",
+    "أكتوبر",
+    "نوفمبر",
+    "ديسمبر",
+  ];
+
+  const currentYear = new Date().getFullYear();
+  const years = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
 
   // Get employee count for each department
   const getDeptEmployeeCount = (deptId: string) => {
-    return employees.filter(e => e.departmentId === deptId).length
-  }
+    return employees.filter((e) => e.departmentId === deptId).length;
+  };
 
-  // Get total salary for each department
+  // Get total salary for each department based on selected month
+  const salaryTotalsByDept = payrollEntries.reduce(
+    (acc, entry) => {
+      const key = entry.departmentId || entry.department || "";
+      if (!key) return acc;
+      acc[key] = (acc[key] || 0) + (entry.grossSalary || 0);
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
+
   const getDeptTotalSalary = (deptId: string) => {
-    return employees
-      .filter(e => e.departmentId === deptId)
-      .reduce((sum, e) => sum + e.baseSalary, 0)
-  }
+    return salaryTotalsByDept[deptId] ?? 0;
+  };
 
   return (
     <div className="min-h-screen">
-      <AdminHeader 
-        title="إدارة الأقسام" 
-        description={`${departments.length} قسم`}
+      <AdminHeader
+        title="إدارة الأقسام"
+        description={`إجمالي رواتب الأقسام لشهر ${monthNames[Number(selectedMonth) - 1]} ${selectedYear}`}
       />
-      
+
       <div className="p-6 space-y-6">
         {/* Add Button */}
         <div className="flex justify-end">
@@ -149,7 +208,10 @@ export default function DepartmentsPage() {
                   onChange={(e) => setNewDeptName(e.target.value)}
                 />
                 <div className="flex gap-2 justify-end">
-                  <Button variant="outline" onClick={() => setAddDialogOpen(false)}>
+                  <Button
+                    variant="outline"
+                    onClick={() => setAddDialogOpen(false)}
+                  >
                     إلغاء
                   </Button>
                   <Button onClick={handleAdd}>إضافة</Button>
@@ -160,11 +222,12 @@ export default function DepartmentsPage() {
         </div>
 
         {/* Departments Grid */}
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {departments.map((dept, index) => {
-            const employeeCount = getDeptEmployeeCount(dept.id)
-            const totalSalary = getDeptTotalSalary(dept.id)
-            
+            const employeeCount = getDeptEmployeeCount(dept.id);
+            const totalSalary = getDeptTotalSalary(dept.id);
+
             return (
               <motion.div
                 key={dept.id}
@@ -185,17 +248,17 @@ export default function DepartmentsPage() {
                       </p>
                     </div>
                   </div>
-                  
+
                   <div className="flex gap-1">
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       size="icon"
                       onClick={() => handleEdit(dept)}
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       size="icon"
                       onClick={() => handleDelete(dept)}
                       className="text-destructive hover:text-destructive"
@@ -204,25 +267,30 @@ export default function DepartmentsPage() {
                     </Button>
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">إجمالي الرواتب</span>
-                    <span className="font-medium">{totalSalary.toLocaleString()} ₪</span>
+                    <span className="text-muted-foreground">
+                      إجمالي الرواتب
+                    </span>
+                    <span className="font-medium">
+                      {totalSalary.toLocaleString()} ₪
+                    </span>
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className="h-full bg-primary rounded-full transition-all"
-                      style={{ 
-                        width: employeeCount > 0 
-                          ? `${Math.min((employeeCount / 10) * 100, 100)}%` 
-                          : '0%' 
+                      style={{
+                        width:
+                          employeeCount > 0
+                            ? `${Math.min((employeeCount / 10) * 100, 100)}%`
+                            : "0%",
                       }}
                     />
                   </div>
                 </div>
               </motion.div>
-            )
+            );
           })}
         </div>
 
@@ -248,7 +316,10 @@ export default function DepartmentsPage() {
               onChange={(e) => setEditName(e.target.value)}
             />
             <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={() => setEditDialogOpen(false)}>
+              <Button
+                variant="outline"
+                onClick={() => setEditDialogOpen(false)}
+              >
                 إلغاء
               </Button>
               <Button onClick={saveEdit}>حفظ</Button>
@@ -268,12 +339,15 @@ export default function DepartmentsPage() {
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-2">
             <AlertDialogCancel>إلغاء</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} className="bg-destructive hover:bg-destructive/90">
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-destructive hover:bg-destructive/90"
+            >
               حذف
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  )
+  );
 }

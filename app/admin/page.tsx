@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react'
 import { AdminHeader } from '@/components/admin/header'
 import { StatsCard } from '@/components/admin/stats-card'
 import { Users, Wallet, TrendingDown, CreditCard, Banknote, Clock } from 'lucide-react'
-import { listEmployees } from '@/lib/api/employees'
 import { listDepartments } from '@/lib/api/departments'
+import { listPayrollEntriesForSheet, listPayrollSheets } from '@/lib/api/payroll'
 import {
   BarChart,
   Bar,
@@ -19,42 +19,86 @@ import {
   Cell,
   Legend,
 } from 'recharts'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899']
 
 export default function AdminDashboard() {
-  const [employees, setEmployees] = useState<any[]>([])
   const [departments, setDepartments] = useState<any[]>([])
+  const [payrollSheets, setPayrollSheets] = useState<any[]>([])
+  const [payrollEntries, setPayrollEntries] = useState<any[]>([])
+  const [selectedSheetId, setSelectedSheetId] = useState('')
 
   useEffect(() => {
     async function load() {
-      const empRes = await listEmployees()
-      if (!empRes.error && empRes.data) setEmployees(empRes.data)
       const deptRes = await listDepartments()
       if (!deptRes.error && deptRes.data) setDepartments(deptRes.data)
+      const sheetsRes = await listPayrollSheets()
+      if (!sheetsRes.error && sheetsRes.data) {
+        setPayrollSheets(sheetsRes.data)
+        if (!selectedSheetId && sheetsRes.data.length > 0) {
+          setSelectedSheetId(sheetsRes.data[0].id)
+        }
+      }
     }
     load()
   }, [])
 
+  useEffect(() => {
+    async function loadPayrollEntries() {
+      if (!selectedSheetId) {
+        setPayrollEntries([])
+        return
+      }
+      const res = await listPayrollEntriesForSheet(selectedSheetId)
+      if (!res.error && res.data) setPayrollEntries(res.data)
+      else setPayrollEntries([])
+    }
+    loadPayrollEntries()
+  }, [selectedSheetId])
+
   // Calculate stats
-  const totalEmployees = employees.length
-  const totalSalaries = employees.reduce((sum: number, e: any) => sum + (Number(e.base_salary) || 0), 0)
-  const totalWithdrawals = employees.reduce((sum: number, e: any) => sum + (Number(e.withdrawals) || 0), 0)
+  const monthNames = [
+    'يناير',
+    'فبراير',
+    'مارس',
+    'أبريل',
+    'مايو',
+    'يونيو',
+    'يوليو',
+    'أغسطس',
+    'سبتمبر',
+    'أكتوبر',
+    'نوفمبر',
+    'ديسمبر',
+  ]
+
+  const selectedSheet = payrollSheets.find((sheet: any) => sheet.id === selectedSheetId)
+
+  const totalEmployees = Array.from(new Set(payrollEntries.map((entry: any) => entry.employeeId))).length
+  const totalSalaries = payrollEntries.reduce((sum: number, e: any) => sum + (Number(e.grossSalary) || 0), 0)
+  const totalWithdrawals = payrollEntries.reduce((sum: number, e: any) => sum + (Number(e.withdrawals) || 0), 0)
   const totalDeductions = 0
-  const cashPayments = employees.filter((e: any) => (Number(e.remaining) || 0) < 700).length
-  const bankTransfers = employees.filter((e: any) => e.payment_status === 'bank_transfer').length
-  const processing = employees.filter((e: any) => e.payment_status === 'processing').length
+  const cashPayments = payrollEntries.filter((e: any) => e.paymentStatus === 'cash').length
+  const bankTransfers = payrollEntries.filter((e: any) => e.paymentStatus === 'bank_transfer').length
+  const processing = payrollEntries.filter((e: any) => e.paymentStatus === 'processing').length
 
   // Department stats for chart
   const departmentStats = departments.map((dept: any) => {
-    const deptEmployees = employees.filter((e: any) => String(e.department_id || e.departmentId) === String(dept.id))
+    const deptEntries = payrollEntries.filter((entry: any) => String(entry.departmentId || '') === String(dept.id))
     return {
       name: dept.name,
-      employees: deptEmployees.length,
-      salary: deptEmployees.reduce((sum: number, e: any) => sum + (Number(e.base_salary) || 0), 0),
-      withdrawals: deptEmployees.reduce((sum: number, e: any) => sum + (Number(e.withdrawals) || 0), 0),
+      employees: new Set(deptEntries.map((entry: any) => entry.employeeId)).size,
+      salary: deptEntries.reduce((sum: number, entry: any) => sum + (Number(entry.grossSalary) || 0), 0),
+      withdrawals: deptEntries.reduce((sum: number, entry: any) => sum + (Number(entry.withdrawals) || 0), 0),
     }
-  }).filter((d: any) => d.employees > 0)
+  }).filter((d: any) => d.salary > 0)
 
   // Payment status distribution
   const paymentDistribution = [
@@ -67,12 +111,27 @@ export default function AdminDashboard() {
     <div className="min-h-screen">
       <AdminHeader 
         title="لوحة التحكم" 
-        description="نظرة عامة على رواتب الموظفين"
+        description={selectedSheet ? `إحصائيات رواتب الأقسام لكشف ${monthNames[selectedSheet.month - 1]} ${selectedSheet.year}` : 'اختر كشف رواتب لعرض الإحصائيات'}
       />
       
       <div className="p-6 space-y-6">
+        <div className="grid gap-4 sm:grid-cols-[1fr_auto] items-end">
+          <div />
+          <Select value={selectedSheetId} onValueChange={setSelectedSheetId}>
+            <SelectTrigger className="w-full sm:w-72">
+              <SelectValue placeholder="اختر كشف رواتب" />
+            </SelectTrigger>
+            <SelectContent>
+              {payrollSheets.map((sheet: any) => (
+                <SelectItem key={sheet.id} value={sheet.id}>
+                  {monthNames[sheet.month - 1]} {sheet.year}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
           <StatsCard
             title="إجمالي الموظفين"
             value={totalEmployees}
@@ -91,12 +150,12 @@ export default function AdminDashboard() {
             icon={TrendingDown}
             delay={0.2}
           />
-          <StatsCard
+          {/* <StatsCard
             title="إجمالي الخصومات"
             value={`${totalDeductions.toLocaleString()} ₪`}
             icon={TrendingDown}
             delay={0.3}
-          />
+          /> */}
           <StatsCard
             title="تحويل بنكي"
             value={bankTransfers}
@@ -207,13 +266,13 @@ export default function AdminDashboard() {
                           <div 
                             className="h-full rounded-full"
                             style={{ 
-                              width: `${(dept.salary / totalSalaries) * 100}%`,
+                              width: `${totalSalaries > 0 ? (dept.salary / totalSalaries) * 100 : 0}%`,
                               backgroundColor: COLORS[index % COLORS.length]
                             }}
                           />
                         </div>
                         <span className="text-sm text-muted-foreground">
-                          {((dept.salary / totalSalaries) * 100).toFixed(1)}%
+                          {totalSalaries > 0 ? ((dept.salary / totalSalaries) * 100).toFixed(1) : '0.0'}%
                         </span>
                       </div>
                     </td>

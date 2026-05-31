@@ -14,7 +14,9 @@ function normalizePayrollEntry(row: any) {
     employeeName: employee?.full_name ?? '',
     employeeNumber: employee?.employee_id ?? '',
     department: department?.name ?? '',
+    departmentId: employee?.department_id ?? employee?.departmentId ?? '',
     branch: branch?.name ?? '',
+    paymentStatus: employee?.payment_status ?? row.payment_status ?? '',
     workType: employee?.work_type ?? '',
     hoursOrDays: Number(row.hours_or_days) || 0,
     rate: Number(row.rate) || 0,
@@ -108,7 +110,7 @@ export async function deletePayrollSheet(id: string) {
 export async function listPayrollEntriesForEmployee(employeeId: string) {
   const { data, error } = await supabase
     .from('payroll_entries')
-    .select(`*, payroll_sheet:payroll_sheets(*), employee:employees(employee_id, full_name, work_type, branch:branches(name), department:departments(name))`)
+    .select(`*, payroll_sheet:payroll_sheets(*), employee:employees(employee_id, full_name, work_type, department_id, branch:branches(name), department:departments(name))`)
     .eq('employee_id', employeeId)
   return { data: data?.map(normalizePayrollEntry), error }
 }
@@ -116,8 +118,18 @@ export async function listPayrollEntriesForEmployee(employeeId: string) {
 export async function listPayrollEntriesForSheet(sheetId: string) {
   const { data, error } = await supabase
     .from('payroll_entries')
-    .select(`*, employee:employees(employee_id, full_name, work_type, branch:branches(name), department:departments(name))`)
+    .select(`*, employee:employees(employee_id, full_name, work_type, department_id, payment_status, branch:branches(name), department:departments(name))`)
     .eq('payroll_sheet_id', sheetId)
+  return { data: data?.map(normalizePayrollEntry), error }
+}
+
+export async function listPayrollEntriesForMonth(month: number, year: number) {
+  const { data, error } = await supabase
+    .from('payroll_entries')
+    .select(`*, payroll_sheet:payroll_sheets(*), employee:employees(employee_id, full_name, work_type, department_id, payment_status, branch:branches(name), department:departments(name))`)
+    .eq('payroll_sheet.month', month)
+    .eq('payroll_sheet.year', year)
+    .in('payroll_sheet.status', ['approved', 'closed'])
   return { data: data?.map(normalizePayrollEntry), error }
 }
 

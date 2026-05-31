@@ -85,6 +85,7 @@ export interface PayrollEntry {
   employeeName: string
   employeeNumber: string
   department: string
+  departmentId?: string
   branch: string
   workType: WorkType
   hoursOrDays: number
