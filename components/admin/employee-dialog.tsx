@@ -33,12 +33,14 @@ import type {
 } from "@/lib/types";
 import { User, Briefcase, Wallet, Activity } from "lucide-react";
 import { toast } from "sonner";
+import { useAppStore } from "@/lib/store";
 
 interface EmployeeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   employee?: Employee | null;
   mode: "add" | "edit" | "view";
+  isAdminPage?: boolean;
 }
 
 interface EmployeeFormData {
@@ -69,11 +71,23 @@ export function EmployeeDialog({
   onOpenChange,
   employee,
   mode,
+  isAdminPage = false,
 }: EmployeeDialogProps) {
   const [departments, setDepartments] = useState<any[]>([]);
   const [branches, setBranches] = useState<any[]>([]);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const cashDaysDefault = 0;
-  const currentUser = null as { role: UserRole } | null;
+
+  // Get current user from store or localStorage
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('o2_current_user');
+      if (raw) setCurrentUser(JSON.parse(raw));
+    } catch (e) {
+      setCurrentUser(null);
+    }
+  }, []);
+
   const defaultFormData = useMemo<EmployeeFormData>(
     () => ({
       nationalId: "",
@@ -227,7 +241,7 @@ export function EmployeeDialog({
 
   const isReadOnly = mode === "view";
   const isAdmin = currentUser?.role === "admin";
-  const canEditJobData = mode === "add" || isAdmin;
+  const canEditJobData = isAdminPage || mode === "add" || isAdmin;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -257,7 +271,7 @@ export function EmployeeDialog({
               </TabsTrigger>
               <TabsTrigger value="status" className="gap-2">
                 <Activity className="h-4 w-4" />
-                <span className="hidden sm:inline">الحالة</span>
+                <span className=" sm:inline">الحالة</span>
               </TabsTrigger>
             </TabsList>
 
@@ -531,7 +545,7 @@ export function EmployeeDialog({
                         status: value as EmployeeStatus,
                       }))
                     }
-                    disabled={isReadOnly || (!isAdmin && mode === "edit")}
+                    disabled={isReadOnly || (!isAdminPage && !isAdmin && mode === "edit")}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="اختر الحالة" />
@@ -554,7 +568,7 @@ export function EmployeeDialog({
                         role: value as UserRole,
                       }))
                     }
-                    disabled={isReadOnly || (!isAdmin && mode === "edit")}
+                    disabled={isReadOnly || (!isAdminPage && !isAdmin && mode === "edit")}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="اختر الصلاحية" />

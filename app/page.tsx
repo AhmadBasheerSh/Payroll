@@ -99,11 +99,11 @@ export default function LoginPage() {
                 <span className="text-3xl font-bold text-primary-foreground">O2</span>
               </div>
             </div>
-            
+
             <CardTitle className="text-2xl font-bold">O2 Payroll System</CardTitle>
             <CardDescription>نظام إدارة رواتب الموظفين</CardDescription>
           </CardHeader>
-          
+
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
@@ -112,7 +112,7 @@ export default function LoginPage() {
                   <User className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                   <Input
                     id="employeeId"
-                    placeholder="E20001"
+                    placeholder="الرقم الوظيفي"
                     value={employeeId}
                     onChange={(e) => setEmployeeId(e.target.value)}
                     className="pr-10"
@@ -128,7 +128,7 @@ export default function LoginPage() {
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="آخر 4 أرقام من الهوية"
+                    placeholder="  كلمة المرور"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="pr-10 pl-10"
@@ -144,8 +144,8 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full h-12 text-base font-semibold"
                 disabled={isLoading}
               >
@@ -162,19 +162,19 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            {/* Demo Credentials */}
+            {/* Demo Credentials
             <div className="mt-6 p-4 rounded-lg bg-muted/50">
-              <p className="text-sm font-medium text-muted-foreground mb-2">بيانات تجريبية:</p>
+              <p className="text-sm font-medium text-muted-foreground mb-2">بياناتك:</p>
               <div className="space-y-1 text-sm">
-                <p><span className="text-muted-foreground">مدير:</span> E20001 / admin123</p>
-                <p><span className="text-muted-foreground">موظف:</span> E20003 / 0003</p>
+
+                <p><span className="text-muted-foreground">موظف:</span> رقم الهوية  / 0003</p>
               </div>
-            </div>
+            </div> */}
           </CardContent>
         </Card>
 
         <p className="text-center text-sm text-muted-foreground mt-4">
-          © 2024 O2 Restaurant. جميع الحقوق محفوظة
+          © 2026 O2 Restaurant. جميع الحقوق محفوظة
         </p>
       </div>
     </div>

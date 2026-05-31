@@ -23,11 +23,11 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { 
-  User, 
-  Building2, 
-  Wallet, 
-  Clock, 
+import {
+  User,
+  Building2,
+  Wallet,
+  Clock,
   Banknote,
   FileText,
   LogOut,
@@ -116,7 +116,7 @@ export default function EmployeeDashboard() {
       router.push('/')
       return
     }
-    
+
     const emp = employees.find(e => e.employeeId === currentUser.employeeId)
     if (emp) {
       setEmployee(emp)
@@ -126,7 +126,7 @@ export default function EmployeeDashboard() {
         walletOwnerName: emp.wallet.ownerName,
         walletOwnerId: emp.wallet.ownerId
       })
-      
+
       // Get salary records from approved/closed payroll sheets
       const records: EmployeeSalaryRecord[] = []
       payrollSheets
@@ -151,16 +151,16 @@ export default function EmployeeDashboard() {
             })
           }
         })
-      
+
       // Sort by date descending
       records.sort((a, b) => b.year - a.year || b.month - a.month)
       setSalaryRecords(records)
-      
+
       // Get last month salary
       if (records.length > 0) {
         setLastMonthSalary(records[0])
       }
-      
+
       // Get employee review requests
       const empRequests = reviewRequests.filter(r => r.employeeId === emp.employeeId)
       setMyReviewRequests(empRequests.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()))
@@ -174,7 +174,7 @@ export default function EmployeeDashboard() {
 
   const handleEditProfile = () => {
     if (!employee) return
-    
+
     updateEmployee(employee.id, {
       phoneNumber: editFormData.phoneNumber,
       wallet: {
@@ -183,7 +183,7 @@ export default function EmployeeDashboard() {
         ownerId: editFormData.walletOwnerId
       }
     })
-    
+
     toast.success('تم تحديث البيانات بنجاح')
     setEditDialogOpen(false)
   }
@@ -193,10 +193,10 @@ export default function EmployeeDashboard() {
       toast.error('يرجى تعبئة جميع الحقول')
       return
     }
-    
+
     const sheet = payrollSheets.find(s => s.id === reviewFormData.payrollSheetId)
     if (!sheet) return
-    
+
     addReviewRequest({
       employeeId: employee.employeeId,
       employeeName: employee.fullName,
@@ -206,7 +206,7 @@ export default function EmployeeDashboard() {
       year: sheet.year,
       reason: reviewFormData.reason.trim()
     })
-    
+
     toast.success('تم ارسال طلب المراجعة بنجاح')
     setReviewDialogOpen(false)
     setReviewFormData({ payrollSheetId: '', reason: '' })
@@ -214,28 +214,28 @@ export default function EmployeeDashboard() {
 
   const availablePayrollSheets = payrollSheets
     .filter(
-      s => (s.status === 'approved' || s.status === 'closed') && 
-      s.entries.some(e => e.employeeId === employee?.employeeId)
+      s => (s.status === 'approved' || s.status === 'closed') &&
+        s.entries.some(e => e.employeeId === employee?.employeeId)
     )
     .sort((a, b) => b.year - a.year || b.month - a.month)
 
   const exportPDF = () => {
     if (!employee || !lastMonthSalary) return
-    
+
     const doc = new jsPDF()
-    
+
     doc.setFontSize(20)
     doc.text('O2 Payroll System', 105, 20, { align: 'center' })
     doc.setFontSize(14)
     doc.text(`Salary Slip - ${monthNames[lastMonthSalary.month - 1]} ${lastMonthSalary.year}`, 105, 30, { align: 'center' })
-    
+
     doc.setFontSize(12)
     const startY = 50
     doc.text(`Employee ID: ${employee.employeeId}`, 20, startY)
     doc.text(`Name: ${employee.fullName}`, 20, startY + 10)
     doc.text(`Department: ${employee.department}`, 20, startY + 20)
     doc.text(`Branch: ${employee.branch}`, 20, startY + 30)
-    
+
     const tableData = [
       ['Hours/Days', `${lastMonthSalary.hoursOrDays}`],
       ['Rate', `${lastMonthSalary.rate} ILS`],
@@ -246,7 +246,7 @@ export default function EmployeeDashboard() {
       ['Transfer Received', `${lastMonthSalary.transferReceived.toLocaleString()} ILS`],
       ['Remaining', `${lastMonthSalary.remaining.toLocaleString()} ILS`],
     ]
-    
+
     // @ts-expect-error - jspdf-autotable types
     doc.autoTable({
       startY: startY + 45,
@@ -255,7 +255,7 @@ export default function EmployeeDashboard() {
       theme: 'grid',
       headStyles: { fillColor: [59, 130, 246] },
     })
-    
+
     doc.save(`salary-slip-${employee.employeeId}-${lastMonthSalary.month}-${lastMonthSalary.year}.pdf`)
     toast.success('تم تحميل كشف الراتب')
   }
@@ -290,7 +290,7 @@ export default function EmployeeDashboard() {
               <p className="text-xs text-muted-foreground">لوحة الموظف</p>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2">
             <Button
               variant="ghost"
@@ -379,7 +379,7 @@ export default function EmployeeDashboard() {
                     </Badge>
                   </div>
                 </div>
-                
+
                 {/* Info Grid */}
                 <div className="flex-1 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                   <div className="rounded-xl bg-muted/50 p-3">
@@ -389,7 +389,7 @@ export default function EmployeeDashboard() {
                     </div>
                     <p className="font-semibold font-mono">{employee.employeeId}</p>
                   </div>
-                  
+
                   <div className="rounded-xl bg-muted/50 p-3">
                     <div className="flex items-center gap-2 mb-1">
                       <Building2 className="h-4 w-4 text-muted-foreground" />
@@ -397,7 +397,7 @@ export default function EmployeeDashboard() {
                     </div>
                     <p className="font-semibold">{employee.department}</p>
                   </div>
-                  
+
                   <div className="rounded-xl bg-muted/50 p-3">
                     <div className="flex items-center gap-2 mb-1">
                       <MapPin className="h-4 w-4 text-muted-foreground" />
@@ -405,7 +405,7 @@ export default function EmployeeDashboard() {
                     </div>
                     <p className="font-semibold">{employee.branch}</p>
                   </div>
-                  
+
                   <div className="rounded-xl bg-muted/50 p-3">
                     <div className="flex items-center gap-2 mb-1">
                       <Clock className="h-4 w-4 text-muted-foreground" />
@@ -413,7 +413,7 @@ export default function EmployeeDashboard() {
                     </div>
                     <p className="font-semibold">{employee.workType === 'hourly' ? 'بالساعة' : 'يومي'}</p>
                   </div>
-                  
+
                   <div className="rounded-xl bg-muted/50 p-3">
                     <div className="flex items-center gap-2 mb-1">
                       <DollarSign className="h-4 w-4 text-muted-foreground" />
@@ -425,7 +425,7 @@ export default function EmployeeDashboard() {
                       {employee.workType === 'hourly' ? employee.hourlyRate : employee.dailyRate} شيكل
                     </p>
                   </div>
-                  
+
                   <div className="rounded-xl bg-muted/50 p-3">
                     <div className="flex items-center gap-2 mb-1">
                       <Phone className="h-4 w-4 text-muted-foreground" />
@@ -453,8 +453,8 @@ export default function EmployeeDashboard() {
                 <h3 className="text-lg font-semibold">
                   راتب شهر {monthNames[lastMonthSalary.month - 1]} {lastMonthSalary.year}
                 </h3>
-                <Badge variant="outline" className={lastMonthSalary.sheetStatus === 'closed' 
-                  ? 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400' 
+                <Badge variant="outline" className={lastMonthSalary.sheetStatus === 'closed'
+                  ? 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400'
                   : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'}>
                   {lastMonthSalary.sheetStatus === 'closed' ? 'مغلق' : 'معتمد'}
                 </Badge>
@@ -464,7 +464,7 @@ export default function EmployeeDashboard() {
                 تحميل كشف الراتب
               </Button>
             </div>
-            
+
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
               <Card className="border-primary/20">
                 <CardContent className="p-4 text-center">
@@ -475,7 +475,7 @@ export default function EmployeeDashboard() {
                   <p className="text-xl font-bold">{lastMonthSalary.hoursOrDays}</p>
                 </CardContent>
               </Card>
-              
+
               <Card className="border-blue-200 dark:border-blue-800">
                 <CardContent className="p-4 text-center">
                   <div className="flex items-center justify-center mb-2">
@@ -485,7 +485,7 @@ export default function EmployeeDashboard() {
                   <p className="text-xl font-bold text-blue-600">{lastMonthSalary.rate} ش</p>
                 </CardContent>
               </Card>
-              
+
               <Card className="border-emerald-200 dark:border-emerald-800">
                 <CardContent className="p-4 text-center">
                   <div className="flex items-center justify-center mb-2">
@@ -495,7 +495,7 @@ export default function EmployeeDashboard() {
                   <p className="text-xl font-bold text-emerald-600">{lastMonthSalary.grossSalary.toLocaleString()}</p>
                 </CardContent>
               </Card>
-              
+
               <Card className="border-destructive/30">
                 <CardContent className="p-4 text-center">
                   <div className="flex items-center justify-center mb-2">
@@ -505,7 +505,7 @@ export default function EmployeeDashboard() {
                   <p className="text-xl font-bold text-destructive">-{lastMonthSalary.withdrawals.toLocaleString()}</p>
                 </CardContent>
               </Card>
-              
+
               <Card className="border-primary">
                 <CardContent className="p-4 text-center">
                   <div className="flex items-center justify-center mb-2">
@@ -515,7 +515,7 @@ export default function EmployeeDashboard() {
                   <p className="text-xl font-bold text-primary">{lastMonthSalary.netSalary.toLocaleString()}</p>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardContent className="p-4 text-center">
                   <div className="flex items-center justify-center mb-2">
@@ -525,7 +525,7 @@ export default function EmployeeDashboard() {
                   <p className="text-xl font-bold text-amber-600">{lastMonthSalary.cashReceived.toLocaleString()}</p>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardContent className="p-4 text-center">
                   <div className="flex items-center justify-center mb-2">
@@ -535,7 +535,7 @@ export default function EmployeeDashboard() {
                   <p className="text-xl font-bold text-indigo-600">{lastMonthSalary.transferReceived.toLocaleString()}</p>
                 </CardContent>
               </Card>
-              
+
               <Card className={lastMonthSalary.remaining > 0 ? 'border-amber-500' : 'border-emerald-500'}>
                 <CardContent className="p-4 text-center">
                   <div className="flex items-center justify-center mb-2">
@@ -602,8 +602,8 @@ export default function EmployeeDashboard() {
                           <TableCell className="font-medium">{monthNames[record.month - 1]}</TableCell>
                           <TableCell>{record.year}</TableCell>
                           <TableCell>
-                            <Badge variant="outline" className={record.sheetStatus === 'closed' 
-                              ? 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400' 
+                            <Badge variant="outline" className={record.sheetStatus === 'closed'
+                              ? 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400'
                               : 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'}>
                               <CheckCircle2 className="h-3 w-3 ml-1" />
                               {record.sheetStatus === 'closed' ? 'مغلق' : 'معتمد'}
@@ -676,14 +676,14 @@ export default function EmployeeDashboard() {
                             <span className="font-semibold">
                               راتب شهر {monthNames[request.month - 1]} {request.year}
                             </span>
-                            <Badge 
-                              variant="outline" 
+                            <Badge
+                              variant="outline"
                               className={
-                                request.status === 'pending' 
+                                request.status === 'pending'
                                   ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
                                   : request.status === 'approved'
-                                  ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                                  : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                                    : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
                               }
                             >
                               {request.status === 'pending' && <Clock className="h-3 w-3 ml-1" />}
@@ -741,7 +741,7 @@ export default function EmployeeDashboard() {
                 placeholder="05xxxxxxxx"
               />
             </div>
-            
+
             <div className="border-t pt-4">
               <p className="text-sm font-semibold mb-3">بيانات المحفظة</p>
               <div className="space-y-3">
@@ -821,7 +821,7 @@ export default function EmployeeDashboard() {
                 يتم عرض الأشهر التي لديك فيها راتب فقط.
               </p>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="reason">سبب المراجعة</Label>
               <Textarea

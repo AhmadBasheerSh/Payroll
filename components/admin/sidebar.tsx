@@ -3,11 +3,11 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { 
-  LayoutDashboard, 
-  Users, 
-  Building2, 
-  FileSpreadsheet, 
+import {
+  LayoutDashboard,
+  Users,
+  Building2,
+  FileSpreadsheet,
   Settings,
   LogOut,
   ChevronRight,
@@ -22,50 +22,50 @@ import { Button } from '@/components/ui/button'
 import { useEffect, useState } from 'react'
 
 const menuItems = [
-  { 
-    href: '/admin', 
-    label: 'لوحة التحكم', 
-    icon: LayoutDashboard 
+  {
+    href: '/admin',
+    label: 'لوحة التحكم',
+    icon: LayoutDashboard
   },
-  { 
-    href: '/admin/employees', 
-    label: 'الموظفين', 
-    icon: Users 
+  {
+    href: '/admin/employees',
+    label: 'الموظفين',
+    icon: Users
   },
-  { 
-    href: '/admin/departments', 
-    label: 'الأقسام', 
-    icon: Building2 
+  {
+    href: '/admin/departments',
+    label: 'الأقسام',
+    icon: Building2
   },
-  { 
-    href: '/admin/payroll', 
-    label: 'إثبات الرواتب', 
-    icon: Wallet 
+  {
+    href: '/admin/payroll',
+    label: 'إثبات الرواتب',
+    icon: Wallet
   },
-  { 
-    href: '/admin/reviews', 
-    label: 'طلبات المراجعة', 
-    icon: MessageSquare 
+  {
+    href: '/admin/reviews',
+    label: 'طلبات المراجعة',
+    icon: MessageSquare
   },
-  { 
-    href: '/admin/import', 
-    label: 'استيراد Excel', 
-    icon: FileSpreadsheet 
+  {
+    href: '/admin/import',
+    label: 'استيراد Excel',
+    icon: FileSpreadsheet
   },
-  { 
-    href: '/admin/reports', 
-    label: 'التقارير', 
-    icon: FileText 
+  {
+    href: '/admin/reports',
+    label: 'التقارير',
+    icon: FileText
   },
-  { 
-    href: '/admin/attendance', 
-    label: 'الحضور', 
-    icon: Clock 
-  },
-  { 
-    href: '/admin/settings', 
-    label: 'الإعدادات', 
-    icon: Settings 
+  // { 
+  //   href: '/admin/attendance', 
+  //   label: 'الحضور', 
+  //   icon: Clock 
+  // },
+  {
+    href: '/admin/settings',
+    label: 'الإعدادات',
+    icon: Settings
   },
 ]
 
@@ -133,8 +133,8 @@ export function AdminSidebar() {
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm truncate">{currentUser?.fullName || 'المدير'}</p>
                 <p className="text-xs text-muted-foreground">
-                  {currentUser?.role === 'admin' ? 'مدير النظام' : 
-                   currentUser?.role === 'hr' ? 'موارد بشرية' : 'موظف'}
+                  {currentUser?.role === 'admin' ? 'مدير النظام' :
+                    currentUser?.role === 'hr' ? 'موارد بشرية' : 'موظف'}
                 </p>
               </div>
             </div>
@@ -152,8 +152,8 @@ export function AdminSidebar() {
                       onClick={() => setIsOpen(false)}
                       className={cn(
                         "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors duration-200",
-                        isActive 
-                          ? "bg-primary text-primary-foreground" 
+                        isActive
+                          ? "bg-primary text-primary-foreground"
                           : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                       )}
                     >
@@ -172,8 +172,8 @@ export function AdminSidebar() {
           {/* Logout */}
           <div className="border-t p-4">
             <Link href="/">
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 className="w-full justify-start gap-3 text-destructive hover:text-destructive hover:bg-destructive/10 transition-colors"
                 onClick={() => {
                   localStorage.removeItem('o2_current_user')

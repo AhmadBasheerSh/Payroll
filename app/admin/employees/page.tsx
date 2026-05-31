@@ -39,7 +39,7 @@ export default function EmployeesPage() {
   const [departments, setDepartments] = useState<any[]>([])
   const [branches, setBranches] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
-  
+
   const loadData = async () => {
     setLoading(true)
     const [emp, deps, br] = await Promise.all([
@@ -75,8 +75,8 @@ export default function EmployeesPage() {
   // Filter employees
   const filteredEmployees = employees.filter(emp => {
     const searchValue = search.toLowerCase()
-    const matchesSearch = 
-      emp.fullName?.toLowerCase().includes(searchValue) || 
+    const matchesSearch =
+      emp.fullName?.toLowerCase().includes(searchValue) ||
       emp.employeeId?.toLowerCase().includes(searchValue) ||
       emp.nationalId?.includes(search) ||
       emp.phoneNumber?.includes(search)
@@ -85,7 +85,7 @@ export default function EmployeesPage() {
     const matchesStatus = statusFilter === 'all' || emp.status === statusFilter
     return matchesSearch && matchesDepartment && matchesBranch && matchesStatus
   })
-  
+
   const activeFiltersCount = [departmentFilter, branchFilter, statusFilter].filter(f => f !== 'all').length
 
   const clearFilters = () => {
@@ -134,13 +134,13 @@ export default function EmployeesPage() {
 
   const exportToPDF = (employee: Employee) => {
     const doc = new jsPDF()
-    
+
     // Title
     doc.setFontSize(20)
     doc.text('O2 Payroll System', 105, 20, { align: 'center' })
     doc.setFontSize(14)
     doc.text('Employee Profile', 105, 30, { align: 'center' })
-    
+
     // Employee Info
     doc.setFontSize(12)
     const startY = 50
@@ -151,7 +151,7 @@ export default function EmployeesPage() {
     doc.text(`Work Type: ${employee.workType === 'hourly' ? 'Hourly' : 'Daily'}`, 20, startY + 40)
     doc.text(`Rate: ${employee.workType === 'hourly' ? employee.hourlyRate : employee.dailyRate} ILS`, 20, startY + 50)
     doc.text(`Status: ${employee.status}`, 20, startY + 60)
-    
+
     doc.save(`employee-${employee.employeeId}.pdf`)
     toast.success('تم تصدير الملف الشخصي')
   }
@@ -163,7 +163,7 @@ export default function EmployeesPage() {
       suspended: 'موقوف',
       terminated: 'مفصول'
     }
-    
+
     const rows = filteredEmployees.map(emp => [
       emp.employeeId,
       emp.fullName,
@@ -174,17 +174,17 @@ export default function EmployeesPage() {
       statusLabels[emp.status],
       emp.phoneNumber || ''
     ])
-    
+
     const csvContent = [headers, ...rows]
       .map(row => row.join(','))
       .join('\n')
-    
+
     const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement('a')
     link.href = URL.createObjectURL(blob)
     link.download = 'employees.csv'
     link.click()
-    
+
     toast.success('تم تصدير البيانات')
   }
 
@@ -195,11 +195,11 @@ export default function EmployeesPage() {
 
   return (
     <div className="min-h-screen">
-      <AdminHeader 
-        title="إدارة الموظفين" 
+      <AdminHeader
+        title="إدارة الموظفين"
         description={`${employees.length} موظف (${activeCount} نشط، ${suspendedCount} موقوف، ${terminatedCount} مفصول)`}
       />
-      
+
       <div className="p-6 space-y-6">
         {/* Quick Stats */}
         <motion.div
@@ -236,7 +236,7 @@ export default function EmployeesPage() {
             <p className="text-sm text-muted-foreground">مفصول</p>
           </button>
         </motion.div>
-        
+
         {/* Filters */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -254,7 +254,7 @@ export default function EmployeesPage() {
                 className="pr-10"
               />
             </div>
-            
+
             <div className="flex gap-2">
               <Button variant="outline" onClick={exportAllToExcel}>
                 <FileSpreadsheet className="h-4 w-4 ml-2" />
@@ -266,13 +266,13 @@ export default function EmployeesPage() {
               </Button>
             </div>
           </div>
-          
+
           <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Filter className="h-4 w-4" />
               <span>فلترة:</span>
             </div>
-            
+
             <div className="flex flex-wrap gap-2">
               <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
                 <SelectTrigger className="w-40">
@@ -287,7 +287,7 @@ export default function EmployeesPage() {
                   ))}
                 </SelectContent>
               </Select>
-              
+
               <Select value={branchFilter} onValueChange={setBranchFilter}>
                 <SelectTrigger className="w-40">
                   <SelectValue placeholder="الفرع" />
@@ -301,7 +301,7 @@ export default function EmployeesPage() {
                   ))}
                 </SelectContent>
               </Select>
-              
+
               <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as EmployeeStatus | 'all')}>
                 <SelectTrigger className="w-32">
                   <SelectValue placeholder="الحالة" />
@@ -313,7 +313,7 @@ export default function EmployeesPage() {
                   <SelectItem value="terminated">مفصول</SelectItem>
                 </SelectContent>
               </Select>
-              
+
               {activeFiltersCount > 0 && (
                 <Button variant="ghost" size="sm" onClick={clearFilters} className="gap-1">
                   <X className="h-4 w-4" />
@@ -325,7 +325,7 @@ export default function EmployeesPage() {
               )}
             </div>
           </div>
-          
+
           {/* Results count */}
           <p className="text-sm text-muted-foreground">
             عرض {filteredEmployees.length} من أصل {employees.length} موظف
@@ -355,6 +355,7 @@ export default function EmployeesPage() {
           onOpenChange={setDialogOpen}
           employee={selectedEmployee}
           mode={dialogMode}
+          isAdminPage={true}
         />
       )}
 

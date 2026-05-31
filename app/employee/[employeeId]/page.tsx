@@ -298,11 +298,11 @@ export default function EmployeeDashboardPage({ params }: { params: Promise<{ em
     router.push('/')
   }
 
- const handleEditProfile = async () => {
+  const handleEditProfile = async () => {
     if (!employee) return
 
     const newPassword = editFormData.password.trim()
-    
+
     // التحقق من تطابق كلمة المرور إذا تم إدخالها
     if (newPassword && newPassword !== editFormData.confirmPassword.trim()) {
       toast.error('كلمة المرور وتأكيدها غير متطابقين')
@@ -630,10 +630,10 @@ export default function EmployeeDashboardPage({ params }: { params: Promise<{ em
                   {lastMonthSalary.sheetStatus === 'closed' ? 'مغلق' : 'معتمد'}
                 </Badge>
               </div>
-              <Button onClick={() => exportPDF(lastMonthSalary)} variant="outline" size="sm">
+              {/* <Button onClick={() => exportPDF(lastMonthSalary)} variant="outline" size="sm">
                 <FileText className="h-4 w-4 ml-2" />
                 تحميل كشف الراتب
-              </Button>
+              </Button> */}
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
@@ -841,8 +841,8 @@ export default function EmployeeDashboardPage({ params }: { params: Promise<{ em
                                 request.status === 'pending'
                                   ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
                                   : request.status === 'approved'
-                                  ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                                  : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                                    : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
                               }
                             >
                               {request.status === 'pending' && <Clock className="h-3 w-3 ml-1" />}
