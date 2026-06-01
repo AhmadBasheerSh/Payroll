@@ -38,7 +38,7 @@ export default function LoginPage() {
       return
     }
 
-    const validPassword = data.password === password || password === normalizedEmployeeId.slice(-4)
+    const validPassword = data.password === password
 
     if (!validPassword || data.status === 'terminated') {
       toast.error('بيانات الدخول غير صحيحة')
@@ -129,7 +129,7 @@ export default function LoginPage() {
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="  كلمة المرور"
+                    placeholder="رقم هوية صاحب المحفظة"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="pr-10 pl-10"
