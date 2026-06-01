@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAppStore } from '@/lib/store'
 import { supabase } from '@/lib/supabase'
+import { setAuthCookies } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -14,7 +15,6 @@ import type { UserRole } from '@/lib/types'
 
 export default function LoginPage() {
   const router = useRouter()
-  const { login } = useAppStore()
   const [employeeId, setEmployeeId] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -70,6 +70,7 @@ export default function LoginPage() {
       isAuthenticated: true
     })
 
+    setAuthCookies(role, employeeIdValue)
     toast.success(`مرحباً ${data.full_name}`)
 
     if (role === 'admin' || role === 'hr') {

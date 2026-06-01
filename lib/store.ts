@@ -22,6 +22,7 @@ import {
   mockPayrollSheets,
   mockReviewRequests
 } from './mock-data'
+import { clearAuthCookies, setAuthCookies } from './utils'
 
 interface AppState {
   // Auth
@@ -112,12 +113,14 @@ export const useAppStore = create<AppState>()(
             },
             isAuthenticated: true
           })
+          setAuthCookies(employee.role || 'employee', employee.employeeId)
           return true
         }
         return false
       },
       
       logout: () => {
+        clearAuthCookies()
         set({ currentUser: null, isAuthenticated: false })
       },
       
